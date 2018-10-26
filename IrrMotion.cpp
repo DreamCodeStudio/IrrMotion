@@ -59,13 +59,14 @@ void IrrMotion::UpdateHandBlocks()
 {
     Leap::Frame frame = _leapController.frame();
     Leap::HandList handList = frame.hands();    
-    Leap::Hand firstHand = handList[0];
+    Leap::Hand firstHand = handList[0];    
 
     for (unsigned int k = 0; k < handList.count(); k++)
     {
         int fingerIndex = 0;
         for (unsigned int i = k * 5; i < (k * 5) + 5; i++)
         {
+                _handBlocks[i * 3]->setVisible(true);
                 _handBlocks[i * 3]->setPosition(irr::core::vector3df(handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_METACARPAL).center().x * 0.2f,
                                                                     handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_METACARPAL).center().y * 0.2f,
                                                                     -handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_METACARPAL).center().z * 0.2f));
@@ -77,6 +78,7 @@ void IrrMotion::UpdateHandBlocks()
         int fingerIndex = 0;
         for (unsigned int i = k * 5; i < (k * 5) + 5; i++)
         {
+            _handBlocks[1 + (i * 3)]->setVisible(true);
             _handBlocks[1 + (i * 3)]->setPosition(irr::core::vector3df(handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().x * 0.2f,
                                                                 handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().y * 0.2f,
                                                                 -handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().z * 0.2f));
@@ -89,6 +91,7 @@ void IrrMotion::UpdateHandBlocks()
         int fingerIndex = 0;
         for (unsigned int i = k * 5; i < (k * 5) + 5; i++)
         {
+            _handBlocks[2 + (i * 3)]->setVisible(true);
             _handBlocks[2 + (i * 3)]->setPosition(irr::core::vector3df(handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().x * 0.2f,
                                                                 handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().y * 0.2f,
                                                                 -handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().z * 0.2f));
@@ -112,9 +115,10 @@ void IrrMotion::InterpolateHandBlocks()
         float interpolatedY = dy / INTERPOLATED_BLOCK_AMOUNT;
         float interpolatedZ = dz / INTERPOLATED_BLOCK_AMOUNT;
 
-        
+        //Set the position of the interpolated blocks
         for (unsigned int i = start; i < end; i++)
         {
+            _interpolatedHandBlocks[i]->setVisible(true); //The Update method turns the visibilty off to prevent that the block is freezed in the air when it does not get updated anymore
             _interpolatedHandBlocks[i]->setPosition(irr::core::vector3df(_handBlocks[k * 3]->getAbsolutePosition().X + (interpolatedX * (i - start)),
                                                                          _handBlocks[k * 3]->getAbsolutePosition().Y + (interpolatedY * (i - start)),
                                                                          _handBlocks[k * 3]->getAbsolutePosition().Z + (interpolatedZ * (i - start))));
@@ -131,9 +135,10 @@ void IrrMotion::InterpolateHandBlocks()
         interpolatedY = dy / INTERPOLATED_BLOCK_AMOUNT;
         interpolatedZ = dz / INTERPOLATED_BLOCK_AMOUNT;
 
-        
+        //Set the position of the interpolated blocks
         for (unsigned int i = start; i < end; i++)
         {
+            _interpolatedHandBlocks[i]->setVisible(true); //The Update method turns the visibilty off to prevent that the block is freezed in the air when it does not get updated anymore
             _interpolatedHandBlocks[i]->setPosition(irr::core::vector3df(_handBlocks[(k * 3) + 1]->getAbsolutePosition().X + (interpolatedX * (i - start)),
                                                                         _handBlocks[(k * 3) + 1]->getAbsolutePosition().Y + (interpolatedY * (i - start)),
                                                                         _handBlocks[(k * 3) + 1]->getAbsolutePosition().Z + (interpolatedZ * (i - start))));
