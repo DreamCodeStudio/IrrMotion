@@ -10,6 +10,7 @@ IrrMotion::IrrMotion(irr::scene::ISceneManager *manager)
     //First connect the controller
     while(!_leapController.isConnected())
     {
+        std::cout << "Waiting for connection to the LeapMotion hardware..." << std::endl;
         sleep(1);
     }
     std::cout << "LeapMotion controller connected!" << std::endl;
@@ -42,13 +43,13 @@ void IrrMotion::SetupHandBlocks()
     
     //Create a block on every bones position
     //The blocks which are positioned on every bone
-    for (unsigned int i = 0; i < 15; i++)
+    for (unsigned int i = 0; i < 30; i++)
     {
         _handBlocks.push_back(_manager->addCubeSceneNode(2, 0, -1));
     }
 
     //Interpolated blocks
-    for (unsigned int i = 0; i < INTERPOLATED_BLOCK_AMOUNT * 10; i++)
+    for (unsigned int i = 0; i < INTERPOLATED_BLOCK_AMOUNT * 20; i++)
     {
         _interpolatedHandBlocks.push_back(_manager->addCubeSceneNode(1, 0, -1));
     }
@@ -60,98 +61,47 @@ void IrrMotion::UpdateHandBlocks()
     Leap::HandList handList = frame.hands();    
     Leap::Hand firstHand = handList[0];
 
-    //Thumb
-    _handBlocks[0]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[0].bone(Leap::Bone::Type::TYPE_METACARPAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[0].bone(Leap::Bone::Type::TYPE_METACARPAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[0].bone(Leap::Bone::Type::TYPE_METACARPAL).center().z * 0.2f)));
-
-    _handBlocks[1]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[0].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[0].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[0].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().z * 0.2f)));
-
-    /*_handBlocks[2]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[0].bone(Leap::Bone::Type::TYPE_DISTAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[0].bone(Leap::Bone::Type::TYPE_DISTAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[0].bone(Leap::Bone::Type::TYPE_DISTAL).center().z) * 0.2f));*/
-
-    _handBlocks[2]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[0].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().x * 0.2f,
-                                                                            firstHand.fingers()[0].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().y * 0.2f,
-                                                                            -firstHand.fingers()[0].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().z * 0.2f)));
-
-    //Second finger
-    _handBlocks[3]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[1].bone(Leap::Bone::Type::TYPE_METACARPAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[1].bone(Leap::Bone::Type::TYPE_METACARPAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[1].bone(Leap::Bone::Type::TYPE_METACARPAL).center().z * 0.2f)));
-
-    _handBlocks[4]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[1].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[1].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[1].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().z * 0.2f)));
-
-    /*_handBlocks[6]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[1].bone(Leap::Bone::Type::TYPE_DISTAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[1].bone(Leap::Bone::Type::TYPE_DISTAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[1].bone(Leap::Bone::Type::TYPE_DISTAL).center().z) * 0.2f));*/
-
-    _handBlocks[5]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[1].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().x * 0.2f,
-                                                                          firstHand.fingers()[1].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().y * 0.2f,
-                                                                          -firstHand.fingers()[1].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().z * 0.2f)));
+    for (unsigned int k = 0; k < handList.count(); k++)
+    {
+        int fingerIndex = 0;
+        for (unsigned int i = k * 5; i < (k * 5) + 5; i++)
+        {
+                _handBlocks[i * 3]->setPosition(irr::core::vector3df(handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_METACARPAL).center().x * 0.2f,
+                                                                    handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_METACARPAL).center().y * 0.2f,
+                                                                    -handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_METACARPAL).center().z * 0.2f));
+                fingerIndex++;
+        }
+    }
+    for (unsigned int k = 0; k < handList.count(); k++)
+    {
+        int fingerIndex = 0;
+        for (unsigned int i = k * 5; i < (k * 5) + 5; i++)
+        {
+            _handBlocks[1 + (i * 3)]->setPosition(irr::core::vector3df(handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().x * 0.2f,
+                                                                handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().y * 0.2f,
+                                                                -handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().z * 0.2f));
+            fingerIndex++;
+        }
+    }
     
-    //Third finger
-    _handBlocks[6]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[2].bone(Leap::Bone::Type::TYPE_METACARPAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[2].bone(Leap::Bone::Type::TYPE_METACARPAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[2].bone(Leap::Bone::Type::TYPE_METACARPAL).center().z * 0.2f)));
-
-    _handBlocks[7]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[2].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[2].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[2].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().z * 0.2f)));
-
-    /*_handBlocks[10]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[2].bone(Leap::Bone::Type::TYPE_DISTAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[2].bone(Leap::Bone::Type::TYPE_DISTAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[2].bone(Leap::Bone::Type::TYPE_DISTAL).center().z) * 0.2f));*/
-
-    _handBlocks[8]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[2].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().x * 0.2f,
-                                                                          firstHand.fingers()[2].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().y * 0.2f,
-                                                                          -firstHand.fingers()[2].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().z * 0.2f)));
-
-    //Fourth finger
-    _handBlocks[9]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[3].bone(Leap::Bone::Type::TYPE_METACARPAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[3].bone(Leap::Bone::Type::TYPE_METACARPAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[3].bone(Leap::Bone::Type::TYPE_METACARPAL).center().z * 0.2f)));
-
-    _handBlocks[10]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[3].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[3].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[3].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().z * 0.2f)));
-
-    /*_handBlocks[14]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[3].bone(Leap::Bone::Type::TYPE_DISTAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[3].bone(Leap::Bone::Type::TYPE_DISTAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[3].bone(Leap::Bone::Type::TYPE_DISTAL).center().z) * 0.2f));*/
-
-    _handBlocks[11]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[3].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().x * 0.2f,
-                                                                          firstHand.fingers()[3].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().y * 0.2f,
-                                                                          -firstHand.fingers()[3].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().z * 0.2f)));
-
-    //Fifth finger
-    _handBlocks[12]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[4].bone(Leap::Bone::Type::TYPE_METACARPAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[4].bone(Leap::Bone::Type::TYPE_METACARPAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[4].bone(Leap::Bone::Type::TYPE_METACARPAL).center().z * 0.2f)));
-
-    _handBlocks[13]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[4].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[4].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[4].bone(Leap::Bone::Type::TYPE_PROXIMAL).center().z * 0.2f)));
-
-    /*_handBlocks[18]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[4].bone(Leap::Bone::Type::TYPE_DISTAL).center().x * 0.2f,
-                                                                          firstHand.fingers()[4].bone(Leap::Bone::Type::TYPE_DISTAL).center().y * 0.2f,
-                                                                          -firstHand.fingers()[4].bone(Leap::Bone::Type::TYPE_DISTAL).center().z) * 0.2f));*/
-
-    _handBlocks[14]->setPosition(irr::core::vector3df(irr::core::vector3df(firstHand.fingers()[4].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().x * 0.2f,
-                                                                          firstHand.fingers()[4].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().y * 0.2f,
-                                                                          -firstHand.fingers()[4].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().z * 0.2f)));
-
+    for (unsigned int k = 0; k < handList.count(); k++)
+    {
+        int fingerIndex = 0;
+        for (unsigned int i = k * 5; i < (k * 5) + 5; i++)
+        {
+            _handBlocks[2 + (i * 3)]->setPosition(irr::core::vector3df(handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().x * 0.2f,
+                                                                handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().y * 0.2f,
+                                                                -handList[k].fingers()[fingerIndex].bone(Leap::Bone::Type::TYPE_INTERMEDIATE).center().z * 0.2f));
+            fingerIndex++;            
+        }
+    }
 }
 
 void IrrMotion::InterpolateHandBlocks()
 {
     int start = 0;
     int end = INTERPOLATED_BLOCK_AMOUNT;
-    for (unsigned int k = 0; k < 5; k++)
+    for (unsigned int k = 0; k < 10; k++)
     {
         //Interpolate between METACARPAL and PROXIMAL bone
         float dx = _handBlocks[(k * 3) + 1]->getAbsolutePosition().X - _handBlocks[k * 3]->getAbsolutePosition().X;
